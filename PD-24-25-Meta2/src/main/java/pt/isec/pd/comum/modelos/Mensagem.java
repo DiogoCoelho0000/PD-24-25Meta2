@@ -6,7 +6,6 @@ package pt.isec.pd.comum.modelos;
 
 import pt.isec.pd.comum.enumeracoes.Tipomensagemenum;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 public class Mensagem implements Serializable {
