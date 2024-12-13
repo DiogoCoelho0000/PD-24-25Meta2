@@ -3,7 +3,7 @@ package pt.isec.pd.controllers;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("soma")
+@RequestMapping("/soma")
 public class SomaController {
 	@GetMapping()
 	public String soma(

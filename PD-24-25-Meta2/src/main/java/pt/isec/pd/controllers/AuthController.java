@@ -1,5 +1,7 @@
 package pt.isec.pd.controllers;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pt.isec.pd.security.TokenService;
@@ -13,10 +15,13 @@ public class AuthController {
     }
 
 	@GetMapping("/login")
-	public String login(Authentication authentication) {
-		System.out.println(authentication);
-		return tokenService.generateToken(authentication);
+	public ResponseEntity<String> login(Authentication authentication) {
+		if (authentication == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
+		}
+		return ResponseEntity.ok(tokenService.generateToken(authentication));
 	}
+
 
 	@GetMapping("/authorization")
 	public String authorization(Authentication authentication) {

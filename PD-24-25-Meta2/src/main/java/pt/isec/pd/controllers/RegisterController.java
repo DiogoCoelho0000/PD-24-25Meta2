@@ -18,28 +18,42 @@ public class RegisterController {
         this.authenticationManager = authenticationManager;
     }
     @PostMapping
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        // Implementar o processo de criação de usuário
-        try {
-            // Lógica para registrar o usuário
-            Bd.ligaBD("Base_de_dados");
+    public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
+        // Verifica se os campos obrigatórios não estão nulos ou vazios
+        if (registerRequest.getUsername() == null || registerRequest.getUsername().isEmpty()) {
+            return ResponseEntity.badRequest().body("O nome de usuário é obrigatório.");
+        }
 
-            boolean userCreated = Bd.setUserDB(
-                    registerRequest.getUsername(),
-                    registerRequest.getnTelefone(),
-                    registerRequest.getEmail(),
-                    registerRequest.getPassword()
-            );
+        if (registerRequest.getEmail() == null || registerRequest.getEmail().isEmpty()) {
+            return ResponseEntity.badRequest().body("O e-mail é obrigatório.");
+        }
 
-            if (userCreated) {
-                return ResponseEntity.ok("Registo efetuado com sucesso");
-            } else {
-                return ResponseEntity.badRequest().body("O utilizador já existe");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Erro ao registrar o usuário");
+        if (registerRequest.getPassword() == null || registerRequest.getPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body("A senha é obrigatória.");
+        }
+
+        Bd.ligaBD("Base_de_dados");
+
+        // Verifica se o e-mail já está registrado
+        boolean emailExiste = Bd.verificarEmailExistente(registerRequest.getEmail());
+        if (emailExiste) {
+            return ResponseEntity.badRequest().body("O e-mail já está em uso.");
+        }
+
+        boolean userCreated = Bd.setUserDB(
+                registerRequest.getUsername(),
+                registerRequest.getnTelefone(),
+                registerRequest.getEmail(),
+                registerRequest.getPassword()
+        );
+
+        if (userCreated) {
+            return ResponseEntity.ok("Registo efetuado com sucesso");
+        } else {
+            return ResponseEntity.badRequest().body("Erro ao registrar o usuário");
         }
     }
+
 
 /*    @PostMapping
     public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {

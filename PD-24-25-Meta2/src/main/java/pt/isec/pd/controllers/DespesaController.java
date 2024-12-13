@@ -60,18 +60,23 @@ public class DespesaController {
                                                  @RequestBody Despesa despesa,
                                                  Authentication authentication) {
         String userEmail = authentication.getName();
-        System.out.println("OLASSSS");
-        //System.out.println(user.getEmail());
-        System.out.println("GRUPO " + grupoNome);
-        System.out.println(userEmail);
-        System.out.println(despesa);
+
+        if (despesa.getValor() <= 0) {
+            return ResponseEntity.badRequest().body("O valor da despesa deve ser positivo.");
+        }
+
+        if (despesa.getDescricao() == null || despesa.getDescricao().isEmpty()) {
+            return ResponseEntity.badRequest().body("A descrição da despesa é obrigatória.");
+        }
+
         // Verifica se o utilizador está no grupo
-       boolean pertenceAoGrupo = Bd.integraGrupo(grupoNome, userEmail);
+        boolean pertenceAoGrupo = Bd.integraGrupo(grupoNome, userEmail);
 
         if (!pertenceAoGrupo) {
             return ResponseEntity.status(403).body("Utilizador não pertence ao grupo");
         }
-        boolean despesaInserida = Bd.criaDespesa(grupoNome,despesa, userEmail);
+
+        boolean despesaInserida = Bd.criaDespesa(grupoNome, despesa, userEmail);
 
         if (despesaInserida) {
             return ResponseEntity.ok("Despesa inserida com sucesso");
@@ -79,5 +84,6 @@ public class DespesaController {
             return ResponseEntity.status(500).body("Erro ao inserir despesa");
         }
     }
+
 
 }

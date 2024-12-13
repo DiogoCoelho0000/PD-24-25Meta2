@@ -1,4 +1,4 @@
-package pt.isec.pd.comum.rmi;
+package pt.isec.pd.rmi;
 
 import pt.isec.pd.comum.modelos.mensagens.*;
 import pt.isec.pd.models.Grupos;
@@ -14,8 +14,12 @@ public interface RmiInterface extends Remote {
     boolean registarUtilizador(Registo registo) throws RemoteException;
     boolean autenticarUtilizador(Login login) throws RemoteException;
 
+    // Lista de Usuários e Grupos
     List<User> obterListaUsuarios() throws RemoteException;  // Retorna a lista de usuários
-    List<Grupos> obterListaGrupos() throws RemoteException;      // Retorna a lista de grupos
+    List<Grupos> obterListaGrupos(String email) throws RemoteException;  // Retorna os grupos associados a um usuário
+
+    // Operações com Grupos
+    //boolean criarGrupo(CriaGrupo criaGrupo) throws RemoteException;  // Método para criar um grupo
 
     // Operações com Despesas
     boolean inserirDespesa(CriaDespesa criaDespesa) throws RemoteException;
