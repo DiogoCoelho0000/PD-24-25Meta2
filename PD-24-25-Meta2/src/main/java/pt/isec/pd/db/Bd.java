@@ -14,8 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bd {
-
-
+    // Criar Servicos
+    // Fazer servicos para a BD
+    // Tem que ser alterado , colocar @Configuration e outras coisas
     private static Connection conn = null;
     private static boolean estaConectado = false;
     //private static final Object lock = new Object();

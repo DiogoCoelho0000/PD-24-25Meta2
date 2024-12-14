@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// tenho que tagar isto como Servico
+// tenho que fazer um ServiceLauncher - component
+// tenho que passar a conexao da BD
 public class RmiService extends UnicastRemoteObject implements RmiInterface {
 
     public static final String SERVICE_NAME = "Splitwise-service";
@@ -142,11 +145,5 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
         });
     }
 
-    // Inicialização do Serviço
-    public static void main(String[] args) throws RemoteException, MalformedURLException, AlreadyBoundException {
-        LocateRegistry.createRegistry(1099);
-        RmiService service = new RmiService();
-        Naming.bind("rmi://localhost:1099/" + SERVICE_NAME, service);
-        System.out.println("RMI Service started...");
-    }
+
 }

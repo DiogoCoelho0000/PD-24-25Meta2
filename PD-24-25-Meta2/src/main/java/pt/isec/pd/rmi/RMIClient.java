@@ -3,6 +3,8 @@ package pt.isec.pd.rmi;
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 
+// Tem que ser tudo alterado
+// Falta fazer o menu aqui
 public class RMIClient {
 
     public static void main(String[] args) {
