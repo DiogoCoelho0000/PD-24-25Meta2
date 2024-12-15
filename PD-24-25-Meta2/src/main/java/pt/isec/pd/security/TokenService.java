@@ -30,14 +30,13 @@ public class TokenService {
 		JwtClaimsSet claims = JwtClaimsSet.builder()
 				.issuer("self")
 				.issuedAt(now)
-				.expiresAt(now.plus(10, ChronoUnit.MINUTES)) // 10 minutos
+				.expiresAt(now.plus(1, ChronoUnit.HOURS))
 				.subject(authentication.getName())
 				.claim("scope", scope)
 				.build();
 
 		return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 	}
-
 
 
 

@@ -24,7 +24,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import pt.isec.pd.db.Bd;
 import pt.isec.pd.security.RsaKeysProperties;
 import pt.isec.pd.security.UserAuthenticationProvider;
 import pt.isec.pd.security.UserRegistoProvider;
@@ -40,14 +39,7 @@ public class Application {
 	}
 
 	public static void main(String[] args) {
-		if(args.length < 1){
-			System.out.println("Must provide at least one argument in the command line: " +
-					"path to the directory where data and image files are located ");
-		}
-
-		resourceDirectory = args[0];
 		SpringApplication.run(Application.class, args);
-		Bd.ligaBD("Base_de_dados");
 	}
 
 	@Bean
@@ -60,5 +52,57 @@ public class Application {
 	@Bean
 	JwtDecoder jetDecoder() {
 		return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
+	}
+
+	@Configurable
+	@EnableWebSecurity
+	public class SecurityConfig {
+		@Autowired
+		private UserAuthenticationProvider authProvider;
+
+
+		@Autowired
+		public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+			auth.authenticationProvider(authProvider);
+		}
+		@Bean
+		public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+			return authenticationConfiguration.getAuthenticationManager();
+		}
+
+		@Bean
+		public SecurityFilterChain loginFilterChain(HttpSecurity http) throws Exception {
+			return http
+					.csrf(csrf -> csrf.disable())
+					.securityMatcher("/login")
+					.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+					.httpBasic(Customizer.withDefaults())
+					.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.build();
+		}
+
+		@Bean
+		public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			return http
+					.csrf(csrf -> csrf.disable())
+					.authorizeHttpRequests(auth -> auth
+							.requestMatchers("/register", "/public/**").permitAll() //ver das permissões
+							//.requestMatchers("/despesa/inserir/**").authenticated()
+							.anyRequest().authenticated())
+					.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.httpBasic(Customizer.withDefaults())
+					.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+					.build();
+		}
+
+		@Bean
+		public SecurityFilterChain genericFilterChain(HttpSecurity http) throws Exception {
+			return http
+					.csrf(csrf -> csrf.disable())
+					.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+					.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+					.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.build();
+		}
 	}
 }

@@ -21,9 +21,11 @@ public class UserRegistoProvider implements AuthenticationProvider {
         boolean success = Bd.setUserDB("manel",123456789,username,password);
 
         if (success) {
+
+            Bd.desligaBD("Base_de_dados");
             return new UsernamePasswordAuthenticationToken(username, password, null);
         }
-
+        Bd.desligaBD("Base_de_dados");
         return authentication;
     }
 

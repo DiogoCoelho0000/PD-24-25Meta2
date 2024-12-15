@@ -18,19 +18,23 @@ public class DespesaController {
     public ResponseEntity<String> eliminarDespesa(@PathVariable String grupoNome,
                                                   @PathVariable String idDespesa,
                                                   Authentication authentication) {
-        // Lógica para verificar se o usuário está no grupo
+        Bd.ligaBD("Base_de_dados");
+
         boolean pertenceAoGrupo = Bd.integraGrupo(grupoNome, authentication.getName());
 
         if (!pertenceAoGrupo) {
+            Bd.desligaBD("Base_de_dados");
             return ResponseEntity.status(403).body("Utilizador não pertence ao grupo");
         }
-
+        Bd.ligaBD("Base_de_dados");
         // Lógica para excluir a despesa
         boolean despesaEliminada = Bd.eliminarDespesa(authentication.getName(), grupoNome,idDespesa);
 
         if (despesaEliminada) {
+            Bd.desligaBD("Base_de_dados");
             return ResponseEntity.ok("Despesa eliminada com sucesso");
         } else {
+            Bd.desligaBD("Base_de_dados");
             return ResponseEntity.status(500).body("Erro ao eliminar despesa");
         }
     }
@@ -39,16 +43,18 @@ public class DespesaController {
     @GetMapping("/minhas-despesas/{grupoNome}")
     public ResponseEntity<?> listarDespesas(@PathVariable String grupoNome,
                                             Authentication authentication) {
-
+        Bd.ligaBD("Base_de_dados");
         boolean pertenceAoGrupo = Bd.integraGrupo(grupoNome, authentication.getName());
 
         if (!pertenceAoGrupo) {
+            Bd.desligaBD("Base_de_dados");
             return ResponseEntity.status(403).body("Utilizador não pertence ao grupo");
         }
 
         List<Despesa> despesas = Bd.listarDespesas(grupoNome);
 
         if (despesas.isEmpty()) {
+            Bd.desligaBD("Base_de_dados");
             return ResponseEntity.status(404).body("Não há despesas associadas a este grupo.");
         }
 
@@ -60,30 +66,30 @@ public class DespesaController {
                                                  @RequestBody Despesa despesa,
                                                  Authentication authentication) {
         String userEmail = authentication.getName();
-
-        if (despesa.getValor() <= 0) {
-            return ResponseEntity.badRequest().body("O valor da despesa deve ser positivo.");
-        }
-
-        if (despesa.getDescricao() == null || despesa.getDescricao().isEmpty()) {
-            return ResponseEntity.badRequest().body("A descrição da despesa é obrigatória.");
-        }
-
+        System.out.println("OLASSSS");
+        //System.out.println(user.getEmail());
+        System.out.println("GRUPO " + grupoNome);
+        System.out.println(userEmail);
+        System.out.println(despesa);
         // Verifica se o utilizador está no grupo
-        boolean pertenceAoGrupo = Bd.integraGrupo(grupoNome, userEmail);
+        Bd.ligaBD("Base_de_dados");
+       boolean pertenceAoGrupo = Bd.integraGrupo(grupoNome, userEmail);
 
         if (!pertenceAoGrupo) {
+            Bd.desligaBD("Base_de_dados");
             return ResponseEntity.status(403).body("Utilizador não pertence ao grupo");
         }
+        Bd.ligaBD("Base_de_dados");
+        boolean despesaInserida = Bd.criaDespesa(grupoNome,despesa, userEmail);
 
-        boolean despesaInserida = Bd.criaDespesa(grupoNome, despesa, userEmail);
-
+        Bd.desligaBD("Base_de_dados");
         if (despesaInserida) {
+            Bd.desligaBD("Base_de_dados");
             return ResponseEntity.ok("Despesa inserida com sucesso");
         } else {
+            Bd.desligaBD("Base_de_dados");
             return ResponseEntity.status(500).body("Erro ao inserir despesa");
         }
     }
-
 
 }

@@ -1,7 +1,6 @@
 package pt.isec.pd.controllers;
 
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,17 +17,21 @@ import java.util.List;
 public class GroupsController {
 
     @GetMapping("/meus-grupos")
-    public List<Grupos> listarGrupos(Authentication authentication) {
-        // A partir da autenticação, obtemos o nome do usuário autenticado
+    public List<Grupos> listarGrupos(/*@RequestParam String email,*/ Authentication authentication) {
+
         String usuarioAutenticado = authentication.getName();
 
-        List<Grupos> grupos = Bd.listarGruposDB(usuarioAutenticado);  // Assume que você tem um método que retorna os grupos
 
-        if (grupos.isEmpty()) {
-            return (List<Grupos>) ResponseEntity.status(404).body("Não há grupos associados a este usuário.");
+        List<Grupos> grupos = new ArrayList<>();
+        try {
+            Bd.ligaBD("Base_de_dados");
+            grupos = Bd.listarGruposDB(usuarioAutenticado);
+            Bd.desligaBD("Base_de_dados");
+            System.out.println(grupos);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        return ResponseEntity.ok(grupos).getBody();
+        return grupos;
     }
-
 }
