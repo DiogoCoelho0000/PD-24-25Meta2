@@ -19,7 +19,6 @@ import java.util.List;
 
 public class Bd {
 
-
     private static Connection conn = null;
     private static boolean estaConectado = false;
     //private static final Object lock = new Object();

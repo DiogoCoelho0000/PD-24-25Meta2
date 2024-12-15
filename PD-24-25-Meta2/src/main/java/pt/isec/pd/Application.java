@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.boot.SpringApplication;
@@ -37,7 +38,6 @@ public class Application {
 	private final RsaKeysProperties rsaKeys;
 	private final RMIServiceLauncher rmiServiceLauncher;
 
-	// Adicionar o RMIServiceLauncher ao construtor
 	public Application(RsaKeysProperties rsaKeys, RMIServiceLauncher rmiServiceLauncher) {
 		this.rsaKeys = rsaKeys;
 		this.rmiServiceLauncher = rmiServiceLauncher;
@@ -56,22 +56,26 @@ public class Application {
 		Bd.ligaBD("Base_de_dados");
 	}
 
-	// Método para iniciar o RMI
-	@Bean
+	@PostConstruct
 	public void startRMI() {
-		rmiServiceLauncher.start();  // Aqui, o método start() será responsável por iniciar o serviço RMI
+		try {
+			rmiServiceLauncher.start(); // Inicia o serviço RMI
+			System.out.println("RMI Service iniciado com sucesso.");
+		} catch (Exception e) {
+			System.err.println("Erro ao iniciar o serviço RMI: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	@Bean
-	JwtEncoder jetEncoder() {
+	JwtEncoder jwtEncoder() {
 		JWK jwK = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
 		JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwK));
 		return new NimbusJwtEncoder(jwkSource);
 	}
 
 	@Bean
-	JwtDecoder jetDecoder() {
+	JwtDecoder jwtDecoder() {
 		return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
 	}
-
 }

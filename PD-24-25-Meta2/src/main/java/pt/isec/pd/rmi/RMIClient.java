@@ -2,6 +2,7 @@ package pt.isec.pd.rmi;
 
 import pt.isec.pd.comum.modelos.mensagens.*;
 import pt.isec.pd.models.Grupos;
+import pt.isec.pd.models.User;
 
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
@@ -12,9 +13,10 @@ public class RMIClient {
 
     public static void main(String[] args) {
         try {
-            // Conectar-se ao RMI registry
-            LocateRegistry.getRegistry("localhost", 1099);
-            RmiInterface rmiService = (RmiInterface) Naming.lookup("//localhost/RmiService");
+            // Conectar-se ao RMI registry no servidor
+            String serviceUrl = "rmi://localhost:1099/RmiService";
+            RmiInterface rmiService = (RmiInterface) Naming.lookup(serviceUrl);
+            System.out.println("Conectado ao servidor RMI.");
 
             // Criar scanner para entrada do usuário
             Scanner scanner = new Scanner(System.in);
@@ -47,8 +49,7 @@ public class RMIClient {
                         eliminarDespesa(rmiService, scanner);
                         break;
                     case 5:
-                        //listarUtilizadores(rmiService);
-                        break;
+                        listarUtilizadores(rmiService);
                     case 6:
                         listarGrupos(rmiService, scanner);
                         break;
@@ -143,7 +144,7 @@ public class RMIClient {
         }
     }
 
-    /*private static void listarUtilizadores(RmiInterface rmiService) {
+    private static void listarUtilizadores(RmiInterface rmiService) {
         try {
             System.out.println("\n=== Lista de Utilizadores ===");
             List<User> users = rmiService.obterListaUsuarios();
@@ -156,7 +157,7 @@ public class RMIClient {
         } catch (Exception e) {
             System.err.println("Erro ao listar utilizadores: " + e.getMessage());
         }
-    }*/
+    }
 
     private static void listarGrupos(RmiInterface rmiService, Scanner scanner) {
         try {

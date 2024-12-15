@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 @Service
 public class RmiService extends UnicastRemoteObject implements RmiInterface {
 
-    public static final String SERVICE_NAME = "Splitwise-service";
     private final List<Registo> utilizadores;
     private final List<CriaDespesa> despesas;
     private final List<RMIObserverInterface> observers;

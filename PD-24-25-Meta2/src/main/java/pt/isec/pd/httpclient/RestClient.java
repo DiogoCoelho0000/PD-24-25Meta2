@@ -2,6 +2,8 @@ package pt.isec.pd.httpclient;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Base64;
 import java.util.Scanner;
@@ -139,7 +141,8 @@ public class RestClient {
 
     private static String sendRequest(String endpoint, String method, String body, String authHeader) {
         try {
-            URL url = new URL(BASE_URL + endpoint);
+            URL url = new URI(BASE_URL + endpoint).toURL();
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod(method);
             connection.setRequestProperty("Content-Type", "application/json");
@@ -179,6 +182,8 @@ public class RestClient {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 }
