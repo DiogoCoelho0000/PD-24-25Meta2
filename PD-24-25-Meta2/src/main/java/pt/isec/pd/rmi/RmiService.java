@@ -1,22 +1,19 @@
 package pt.isec.pd.rmi;
 
+import org.springframework.stereotype.Service;
 import pt.isec.pd.comum.modelos.mensagens.*;
 import pt.isec.pd.models.Grupos;
 import pt.isec.pd.models.User;
 
-import java.net.MalformedURLException;
-import java.rmi.AlreadyBoundException;
-import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// tenho que tagar isto como Servico
-// tenho que fazer um ServiceLauncher - component
 // tenho que passar a conexao da BD
+
+@Service
 public class RmiService extends UnicastRemoteObject implements RmiInterface {
 
     public static final String SERVICE_NAME = "Splitwise-service";
@@ -69,17 +66,14 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
 
     @Override
     public List<Grupos> obterListaGrupos(String email) throws RemoteException {
-        // Retorna os grupos associados ao email
         return groupsList.stream()
                 .filter(g -> g.getNomeGrupo().contains(email))  // Aqui seria a lógica para garantir a associação correta com o e-mail
                 .collect(Collectors.toList());
     }
 
-
     // Operações com Despesas
     @Override
     public boolean inserirDespesa(CriaDespesa criaDespesa) throws RemoteException {
-        // Procurar o grupo pela correspondência do nome
         Grupos grupo = groupsList.stream()
                 .filter(g -> g.getNomeGrupo().equals(criaDespesa.getGrupo()))
                 .findFirst()
@@ -87,27 +81,19 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
 
         if (grupo == null) {
             System.out.println("Grupo não encontrado: " + criaDespesa.getGrupo());
-            return false;  // Se o grupo não for encontrado, retorna false
+            return false;
         }
 
-        // Adiciona a despesa à lista
         despesas.add(criaDespesa);
-        System.out.println("Despesa inserida no grupo " + criaDespesa.getGrupo() + ":");
-        System.out.println(" - Descrição: " + criaDespesa.getDescricao());
-        System.out.println(" - Valor: " + criaDespesa.getDespesa());
-        System.out.println(" - Quem pagou: " + criaDespesa.getQuemPagou());
-        System.out.println(" - Data: " + criaDespesa.getData());
-
-        // Notifica os observadores sobre a inserção da despesa
+        System.out.println("Despesa inserida no grupo " + criaDespesa.getGrupo());
         notifyObservers("Nova despesa inserida no grupo " + criaDespesa.getGrupo());
         return true;
     }
 
-
     @Override
     public boolean eliminarDespesa(EliminaDespesa eliminaDespesa) throws RemoteException {
         for (CriaDespesa d : despesas) {
-            if (d.getGrupo().equals(eliminaDespesa.getGrupoNome()) && d.getDescricao().equalsIgnoreCase(eliminaDespesa.getID())) {
+            if (d.getGrupo().equals(eliminaDespesa.getGrupoNome())) {
                 despesas.remove(d);
                 System.out.println("Despesa eliminada: " + eliminaDespesa.getID() + " no grupo " + eliminaDespesa.getGrupoNome());
                 notifyObservers("Despesa eliminada: " + eliminaDespesa.getID() + " no grupo " + eliminaDespesa.getGrupoNome());
@@ -117,14 +103,6 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
         System.out.println("Despesa não encontrada: " + eliminaDespesa.getID() + " no grupo " + eliminaDespesa.getGrupoNome());
         return false;
     }
-
-    /*@Override
-    public List<Despesa> listarDespesas(String nomeGrupo) throws RemoteException {
-        return despesas.stream()
-                .filter(d -> d.getGrupo().equalsIgnoreCase(nomeGrupo))
-                .map(d -> new Despesa(d.getDescricao(), d.getDespesa(), d.getQuemPagou(), d.getData()))
-                .collect(Collectors.toList());
-    }*/
 
     // Observadores
     @Override
@@ -144,6 +122,4 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
             }
         });
     }
-
-
 }

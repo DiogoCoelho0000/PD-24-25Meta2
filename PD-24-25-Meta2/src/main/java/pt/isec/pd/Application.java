@@ -28,26 +28,38 @@ import pt.isec.pd.db.Bd;
 import pt.isec.pd.security.RsaKeysProperties;
 import pt.isec.pd.security.UserAuthenticationProvider;
 import pt.isec.pd.security.UserRegistoProvider;
+import pt.isec.pd.rmi.RMIServiceLauncher;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
 public class Application {
 	public static String resourceDirectory;
 	private final RsaKeysProperties rsaKeys;
+	private final RMIServiceLauncher rmiServiceLauncher;
 
-	public Application(RsaKeysProperties rsaKeys) {
+	// Adicionar o RMIServiceLauncher ao construtor
+	public Application(RsaKeysProperties rsaKeys, RMIServiceLauncher rmiServiceLauncher) {
 		this.rsaKeys = rsaKeys;
+		this.rmiServiceLauncher = rmiServiceLauncher;
 	}
 
 	public static void main(String[] args) {
-		if(args.length < 1){
+		if (args.length < 1) {
 			System.out.println("Must provide at least one argument in the command line: " +
 					"path to the directory where data and image files are located ");
 		}
 
 		resourceDirectory = args[0];
 		SpringApplication.run(Application.class, args);
+
+		// Conectar ao banco de dados
 		Bd.ligaBD("Base_de_dados");
+	}
+
+	// Método para iniciar o RMI
+	@Bean
+	public void startRMI() {
+		rmiServiceLauncher.start();  // Aqui, o método start() será responsável por iniciar o serviço RMI
 	}
 
 	@Bean

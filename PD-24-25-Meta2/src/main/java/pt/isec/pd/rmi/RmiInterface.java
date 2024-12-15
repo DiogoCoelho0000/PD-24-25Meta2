@@ -18,9 +18,6 @@ public interface RmiInterface extends Remote {
     List<User> obterListaUsuarios() throws RemoteException;  // Retorna a lista de usuários
     List<Grupos> obterListaGrupos(String email) throws RemoteException;  // Retorna os grupos associados a um usuário
 
-    // Operações com Grupos
-    //boolean criarGrupo(CriaGrupo criaGrupo) throws RemoteException;  // Método para criar um grupo
-
     // Operações com Despesas
     boolean inserirDespesa(CriaDespesa criaDespesa) throws RemoteException;
     boolean eliminarDespesa(EliminaDespesa eliminaDespesa) throws RemoteException;

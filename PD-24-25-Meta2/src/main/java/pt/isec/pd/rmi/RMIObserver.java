@@ -1,9 +1,9 @@
 package pt.isec.pd.rmi;
 
-import java.rmi.Naming;
+import org.springframework.stereotype.Component;
 import java.rmi.RemoteException;
-// tem que adicionar
 
+@Component
 public class RMIObserver implements RMIObserverInterface {
 
     protected RMIObserver() throws RemoteException {
@@ -11,7 +11,7 @@ public class RMIObserver implements RMIObserverInterface {
 
     @Override
     public void Notification(String description) throws RemoteException {
-        System.out.println("Received notification: " + description);
+        System.out.println("Recebido a notificação: " + description);
     }
-
 }
+
