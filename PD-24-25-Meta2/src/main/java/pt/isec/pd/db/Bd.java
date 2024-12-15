@@ -1,14 +1,12 @@
 package pt.isec.pd.db;
 
+import org.springframework.stereotype.Component;
 import pt.isec.pd.comum.enumeracoes.Estados;
-import pt.isec.pd.comum.modelos.*;
 import pt.isec.pd.models.Despesa;
 import pt.isec.pd.models.Grupos;
 import pt.isec.pd.models.User;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +14,8 @@ import java.util.List;
 // Criar Servicos
 // Fazer servicos para a BD
 // Tem que ser alterado , colocar @Configuration e outras coisas
+
+@Component
 
 public class Bd {
 
@@ -53,14 +53,15 @@ public class Bd {
         }
     }
 
-    public static void desligaBD(String bd){
-        try{
+    public static void desligaBD(String bd) {
+        try {
             conn.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
     }
+
     public static boolean isEstaConectado() {
         return estaConectado;
     }
@@ -207,184 +208,6 @@ public class Bd {
         }
     }
 
-    /*public static Boolean integraGrupo(String grupoNome, String email) {
-
-        //User user = null;
-        String userID = null;
-        String grupoID = null;
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM USERS WHERE EMAIL='" +
-                    email + "'");
-            if (rs.next()) {
-                userID = rs.getString("ID");
-            }
-
-            try {
-                //Statement stmt = conn.createStatement();
-                ResultSet rs2 = stmt.executeQuery("SELECT * FROM GRUPO WHERE NOME='" +
-                        grupoNome + "'");
-                if (rs.next()) {
-                    grupoID = rs2.getString("ID");
-                }
-            } catch (SQLException e) {
-                System.out.println("O Utilizador não existe!");
-                *//*user.setEstado(false);*//*
-                *//*return user;*//*
-            }
-
-            try {
-                //Statement stmt = conn.createStatement();
-
-                stmt.executeUpdate("INSERT INTO INTEGRA (USER_ID, GROUP_ID)" +
-                        " VALUES ('" +
-                        userID + "','" +
-                        grupoID +
-                        "')");
-                versaoUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-            rs.close();
-            stmt.close();
-        } catch (SQLException e) {
-            System.out.println("O Utilizador não existe!");
-            *//*user.setEstado(false);*//*
-            *//*return user;*//*
-        }
-        return Estados.GRUPO_USER_INSERIDO_COM_SUCESSO;
-    }*/
-
-    public static Estados criaConvite(String email, String groupNome, String emailDestinatario) {
-
-        String querySelect = "SELECT * FROM CONVITES c " +
-                "WHERE c.GROUP_ID = (SELECT ID FROM GRUPO WHERE NOME = '" + groupNome + "' " +
-                "AND CRIADO_POR = '" + email + "') " +
-                "AND c.USER_ID = (SELECT ID FROM USERS WHERE EMAIL = '" + email + "') " +
-                "AND c.DESTINATARIO_ID = (SELECT ID FROM USERS WHERE EMAIL = '" + emailDestinatario + "')";
-
-        System.out.println(querySelect);
-        String queryInsert = "INSERT INTO CONVITES (GROUP_ID, USER_ID, DESTINATARIO_ID, ESTADO) " +
-                "SELECT g.ID, u1.ID, u2.ID, 'pendente' " +
-                "FROM USERS u1 " +
-                "JOIN USERS u2 ON u2.EMAIL = '" + emailDestinatario + "' " +
-                "JOIN INTEGRA i ON i.USER_ID = u1.ID " +
-                "JOIN GRUPO g ON g.ID = i.GROUP_ID " +
-                "WHERE u1.EMAIL = '" + email + "' " +
-                "AND g.NOME = '" + groupNome + "'";
-        System.out.println(queryInsert);
-
-        try {
-            Statement stmt = conn.createStatement();
-
-            ResultSet rs = stmt.executeQuery(querySelect);
-
-            if (rs.next()) {
-                return Estados.ERRO_CRIA_CONVITE;
-            }
-
-            stmt.executeUpdate(queryInsert);
-            versaoUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return Estados.GRUPO_CONVITE_COM_SUCESSO;
-    }
-
-    public static Convites getConvites(String emailRecipiente) {
-        List<Convites> convitesLista = new ArrayList<>();
-        Convites convite = null;
-        String querySelect = "SELECT g.NOME AS NOMEGRUPO, u1.NOME AS NOMEREMETENTE, " +
-                "c.ESTADO AS ESTADO FROM CONVITES c " +
-                "JOIN GRUPO g ON c.GROUP_ID = g.ID " +
-                "JOIN USERS u1 ON c.USER_ID = u1.ID " +
-                "JOIN USERS u2 ON c.DESTINATARIO_ID = u2.ID " +
-                "WHERE u2.EMAIL = '" + emailRecipiente + "'";
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(querySelect);
-            while (rs.next()) {
-                String nomeRemetenteDB = rs.getString("NOMEREMETENTE");
-                String nomeGrupoDB = rs.getString("NOMEGRUPO");
-                String estado = rs.getString("ESTADO");
-                System.out.println("\n" + nomeRemetenteDB + "\n" + nomeGrupoDB + "\n" + estado + "\n");
-                convite = new Convites();
-
-                convite.setEstado(estado);
-                convite.setGrupoNome(nomeGrupoDB);
-                convite.setnomeRemetente(nomeRemetenteDB);
-                convitesLista.add(convite);
-                convite.setConvitesLista(convitesLista);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        //return Estados.ERRO_VER_CONVITES;
-        return convite;
-    }
-
-    public static Estados decideConvite(String grupoNome, String email, String decisao) {
-
-
-        String query = "UPDATE CONVITES " +
-                "SET ESTADO = '" + decisao + "' " +
-                "WHERE GROUP_ID = (SELECT ID FROM GRUPO WHERE NOME = '" + grupoNome + "') " +
-                "AND DESTINATARIO_ID = (SELECT ID FROM USERS WHERE EMAIL = '" + email + "') " +
-                "AND ESTADO = 'pendente'";
-
-        String queryIntegra = "INSERT INTO INTEGRA (USER_ID, GROUP_ID) " +
-                "SELECT (SELECT ID FROM USERS WHERE EMAIL = '" + email + "'), " +
-                "(SELECT ID FROM GRUPO WHERE NOME = '" + grupoNome + "')";
-        try {
-            Statement stmt = conn.createStatement();
-            //System.out.println("cheguei aqui:)");
-            if (decisao.equalsIgnoreCase("aceitar")) {
-                stmt.executeUpdate(query);
-                stmt.executeUpdate(queryIntegra);
-                versaoUpdate();
-                return Estados.GRUPO_ACEITE_CONVITE_COM_SUCESSO;
-            }
-            if (decisao.equalsIgnoreCase("recusar")) {
-                stmt.executeUpdate(query);
-                versaoUpdate();
-            }
-            stmt.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return Estados.ERRO_ACEITAR_CONVITE;
-    }
-
-    //HUGO confirmar isto depois
-    //Não esquecer que ainda falta verificar se o utilizador em questoã es tem dívidas
-    //Consultar enunciado!!!
-    public static Estados sairDoGrupoDB(String grupoNome, String emailUser) {
-        String sqlDelete = "DELETE FROM INTEGRA WHERE GROUP_ID = (SELECT ID FROM GRUPO WHERE NOME = ?) " +
-                "AND USER_ID = (SELECT ID FROM USERS WHERE EMAIL = ?)";
-        if (userTemDividas(emailUser,grupoNome)){
-            System.out.println("OLA");
-            return Estados.USER_TEM_DIVIDAS;
-        }
-        try (PreparedStatement pstmt = conn.prepareStatement(sqlDelete)) {
-            pstmt.setString(1, grupoNome);
-            pstmt.setString(2, emailUser);
-
-            int affectedRows = pstmt.executeUpdate();
-
-            if (affectedRows > 0) {
-                versaoUpdate();
-                return Estados.USER_REMOVIDO_COM_SUCESSO;
-            } else {
-                return Estados.ERRO_GRUPO_NAO_ENCONTRADO;
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao remover usuário do grupo: " + e.getMessage());
-            return Estados.ERRO_GRUPO;
-        }
-    }
-
     //Não esquecer que para eliminar o grupo, primeiro tem de se verificar se há dividas por salvar
     public static Estados eliminarGrupoDB(String grupoNome, String eliminadoPor) {
         String sql = "DELETE FROM GRUPO WHERE NOME = ?";
@@ -405,53 +228,7 @@ public class Bd {
         }
     }
 
-    public static Estados editarNomeGrupoDB(String email, String grupoNome, String grupoNovoNome) {
-        String query = "UPDATE GRUPO " +
-                "SET NOME = '" + grupoNovoNome + "' " +
-                "WHERE ID = (SELECT GROUP_ID FROM INTEGRA WHERE USER_ID = (" +
-                "SELECT ID FROM USERS WHERE EMAIL = '" + email + "') " +
-                "AND GROUP_ID = (SELECT ID FROM GRUPO WHERE NOME = '" + grupoNome + "'))";
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(query);
-            versaoUpdate();
-            stmt.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        //return Estados.GRUPO_NOME_ALTERADO_COM_SUCESSO.setDados();
-        return Estados.GRUPO_NOME_ALTERADO_COM_SUCESSO;
-
-    }
-    //fixed
     public static List<Grupos> listarGruposDB(String solicitadoPor) {
-/*        List<Grupos> grupoList = new ArrayList<>();
-        Grupos grupos = null;
-        String sql = "SELECT g.NOME " +
-                "FROM GRUPO g " +
-                "JOIN INTEGRA i ON g.ID = i.GROUP_ID " +
-                "JOIN USERS u ON i.USER_ID = u.ID " +
-                "WHERE u.EMAIL = '" + solicitadoPor + "'";
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                String nomeGrupo = rs.getString("NOME");
-                grupos = new Grupos();
-                grupos.setNomeGrupo(nomeGrupo);
-                grupoList.add(grupos);
-                grupos.setGruposList(grupoList);
-                //grupoList.add(nomeGrupo);
-            }
-            //ACRESCENTEI ISTO <- Hugo
-            stmt.close();
-            rs.close();
-            //----------------
-        } catch (SQLException e) {
-            System.err.println("Erro ao listar grupos: " + e.getMessage());
-        }
-        System.out.println(grupoList);
-        return grupoList;*/
         List<Grupos> grupos = new ArrayList<>();
 
         String sql = "SELECT G.NOME " +
@@ -500,7 +277,6 @@ public class Bd {
         }
         return grupo;
     }
-
 
 
     public static boolean setUserDB(String nome, int nTelefone, String Email, String password) {
@@ -618,23 +394,6 @@ public class Bd {
         }
     }
 
-    public static void divideDespesa(String grupo) {
-        int nElementos;
-        String queryNElementos = "SELECT COUNT(USER_ID) AS NUMERO_UTILIZADORES\n" +
-                "FROM INTEGRA\n" +
-                "WHERE GROUP_ID = +'" + grupo + "'";
-
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(queryNElementos);
-            while (rs.next()) {
-                nElementos = rs.getInt("NUMERO_UTILIZADORES");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
     public static List<Despesa> listarDespesas(String grupoNome) {
         List<Despesa> despesas = new ArrayList<>();
 
@@ -667,49 +426,6 @@ public class Bd {
         return despesas;
     }
 
-
-    public static void criaDivideDespesa(String grupoNome){
-        String sqlInsert = "INSERT INTO DIVIDE_DESPESA (DESPESA_ID, USER_ID, VALOR_PARTILHADO, GRUPO_ID) " +
-                "SELECT D.ID, I.USER_ID, (D.VALOR / NULLIF(COUNT(DISTINCT I.USER_ID), 0)), G.ID " +
-                "FROM DESPESA D " +
-                "JOIN GRUPO G ON G.ID = D.GROUP_ID " +
-                "JOIN INTEGRA I ON G.ID = I.GROUP_ID " +
-                "WHERE G.NOME = ? " +
-                "GROUP BY D.ID, I.USER_ID, D.VALOR, G.ID " +
-                "ON CONFLICT(DESPESA_ID, USER_ID) DO NOTHING";
-
-        try (PreparedStatement pstmtInsert = conn.prepareStatement(sqlInsert)){
-            pstmtInsert.setString(1, grupoNome);
-            pstmtInsert.executeUpdate();
-            //versaoUpdate();
-        } catch (SQLException e) {
-            System.err.println("Erro a criar divisão de despesa valor total dividido: " + e.getMessage());
-        }
-    }
-
-    public static boolean userTemDividas(String email, String grupoNome){
-        String sql = "SELECT COUNT(*) AS TOTAL " +
-                "FROM DIVIDE_DESPESA DD " +
-                "JOIN USERS U ON U.ID = DD.USER_ID " +
-                "JOIN GRUPO G ON G.ID = DD.GRUPO_ID " +
-                "WHERE U.EMAIL = ? AND G.NOME = ?";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, email);
-            pstmt.setString(2, grupoNome);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("TOTAL") > 0;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Erro ao verificar se o utilizador tem despesas divididas no grupo: " + e.getMessage());
-        }
-
-        return false;
-    }
-
     public static Boolean eliminarDespesa(String email, String nomeGrupo, String ID) {
         String query = "DELETE FROM DESPESA\n" +
                 "WHERE ID = (SELECT D.ID\n" +
@@ -731,83 +447,28 @@ public class Bd {
         return true;
     }
 
+    public static List<User> obterUsuarios() {
+        List<User> usuarios = new ArrayList<>();
+        String query = "SELECT ID, NOME, N_TELEFONE, EMAIL, PASSWORD, ESTADO FROM USERS";
 
-    public static Estados export(String grupoNome, String nome) throws SQLException {
+        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                // Obtém os dados de cada usuário e cria um objeto User
+                int id = rs.getInt("ID");
+                String nome = rs.getString("NOME");
+                int nTelefone = rs.getInt("N_TELEFONE");
+                String email = rs.getString("EMAIL");
+                String password = rs.getString("PASSWORD");
+                boolean estado = rs.getBoolean("ESTADO");
 
-        String sqElementos = "SELECT U.NOME " +
-                "FROM USERS U " +
-                "JOIN INTEGRA I ON U.ID = I.USER_ID " +
-                "JOIN GRUPO G ON G.ID = I.GROUP_ID " +
-                "WHERE G.NOME = '" + grupoNome + "' " +
-                "AND EXISTS ( " +
-                "SELECT * " +
-                "FROM INTEGRA I2 " +
-                "JOIN USERS U2 ON I2.USER_ID = U2.ID " +
-                "WHERE I2.GROUP_ID = G.ID " +
-                "AND U2.EMAIL = '" + nome + "')";
-
-
-        String sqDespesas = "SELECT D.DATA, U_REGISTADA.NOME AS REGISTADA_POR, D.VALOR, U_PAGA.NOME AS PAGA_POR " +
-                "FROM DESPESA D " +
-                "JOIN GRUPO G ON D.GROUP_ID = G.ID " +
-                "JOIN USERS U_REGISTADA ON D.REGISTADA_POR = U_REGISTADA.ID " +
-                "JOIN USERS U_PAGA ON D.PAGA_POR = U_PAGA.ID " +
-                "WHERE G.NOME = '" + grupoNome + "'";
-
-        String localFicheiro = "src/pt/isec/pd/Ficheiros/";
-        try (Statement stmt = conn.createStatement();
-             ResultSet rsElementos = stmt.executeQuery(sqElementos)) {
-
-            List<String> membros = new ArrayList<>();
-            while (rsElementos.next()) {
-                membros.add(rsElementos.getString("NOME"));
+                // Adiciona o usuário à lista
+                User user = new User(id, nome, email, password, nTelefone, estado);
+                usuarios.add(user);
             }
-
-
-            FileWriter fileWriter = new FileWriter(localFicheiro + grupoNome + " despesas.csv");
-
-
-            fileWriter.write("\"Nome do grupo\"\n");
-            fileWriter.write("\"" + grupoNome + "\"\n\n");
-
-
-            fileWriter.write("\"Elementos\"\n");
-            for (String membro : membros) {
-                fileWriter.write("\"" + membro + "\";");
-            }
-            fileWriter.write("\n\n");
-
-
-            fileWriter.write("\"Data\";\"Responsável pelo registo da despesa\";\"Valor\";\"Pago por\";\"A dividir com\"\n");
-
-
-            try (ResultSet rsDespesas = stmt.executeQuery(sqDespesas)) {
-                while (rsDespesas.next()) {
-                    String data = rsDespesas.getString("DATA");
-                    String registadaPor = rsDespesas.getString("REGISTADA_POR");
-                    double valor = rsDespesas.getDouble("VALOR");
-                    String pagaPor = rsDespesas.getString("PAGA_POR");
-
-
-                    List<String> dividirCom = new ArrayList<>(membros);
-                    dividirCom.remove(pagaPor);
-
-                    
-                    fileWriter.write("\"" + data + "\";");
-                    fileWriter.write("\"" + registadaPor + "\";");
-                    fileWriter.write("\"" + valor + "\";");
-                    fileWriter.write("\"" + pagaPor + "\";");
-                    fileWriter.write("\"" + String.join("; ", dividirCom) + "\"\n");
-                }
-            }
-
-            fileWriter.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao gerar o arquivo: " + e.getMessage(), e);
+        } catch (SQLException e) {
+            System.out.println("Erro ao obter lista de usuários: " + e.getMessage());
         }
 
-        return Estados.USER_EXPORTA_COM_SUCESSO;
+        return usuarios;
     }
-
-
 }

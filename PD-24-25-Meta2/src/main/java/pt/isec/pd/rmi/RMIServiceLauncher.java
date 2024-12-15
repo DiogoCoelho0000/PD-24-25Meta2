@@ -1,6 +1,8 @@
 package pt.isec.pd.rmi;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pt.isec.pd.db.Bd;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
@@ -8,6 +10,11 @@ import java.rmi.registry.LocateRegistry;
 
 @Component
 public class RMIServiceLauncher {
+
+    // Injeção de dependência da classe Bd (Banco de Dados)
+    @Autowired
+    private Bd bd; // O Spring irá injetar a instância de Bd automaticamente
+
     public void start() throws RemoteException {
         // Porta onde o RMI Registry será iniciado
         int registryPort = 1099;
@@ -22,7 +29,8 @@ public class RMIServiceLauncher {
             String serviceName = "RmiService";
             String serviceUrl = "rmi://" + hostname + ":" + registryPort + "/" + serviceName;
 
-            RmiService service = new RmiService();
+            // Criar o serviço RMI e passar a conexão do banco de dados
+            RmiService service = new RmiService(bd);  // Passa o Bd para o RmiService
             Naming.rebind(serviceUrl, service);
             System.out.println("Serviço RMI registrado em: " + serviceUrl);
         } catch (Exception e) {

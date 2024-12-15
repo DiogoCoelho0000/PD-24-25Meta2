@@ -6,7 +6,7 @@ public class CriaDespesa implements Serializable {
     private String grupo;
     private double despesa;
 
-    public CriaDespesa(double despesa, String grupo) {
+    public CriaDespesa(double despesa, String grupo, String email) {
         this.despesa = despesa;
         this.grupo = grupo;
     }

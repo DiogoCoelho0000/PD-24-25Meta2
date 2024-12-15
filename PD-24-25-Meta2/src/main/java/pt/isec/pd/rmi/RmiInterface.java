@@ -1,6 +1,7 @@
 package pt.isec.pd.rmi;
 
 import pt.isec.pd.comum.modelos.mensagens.*;
+import pt.isec.pd.models.Despesa;
 import pt.isec.pd.models.Grupos;
 import pt.isec.pd.models.User;
 
@@ -19,8 +20,8 @@ public interface RmiInterface extends Remote {
     List<Grupos> obterListaGrupos(String email) throws RemoteException;  // Retorna os grupos associados a um usuário
 
     // Operações com Despesas
-    boolean inserirDespesa(CriaDespesa criaDespesa) throws RemoteException;
-    boolean eliminarDespesa(EliminaDespesa eliminaDespesa) throws RemoteException;
+    boolean inserirDespesa(Despesa criaDespesa) throws RemoteException;
+    boolean eliminarDespesa(Despesa eliminaDespesa) throws RemoteException;
 
     // Método para adicionar observadores
     void addObserver(RMIObserverInterface observer) throws RemoteException;

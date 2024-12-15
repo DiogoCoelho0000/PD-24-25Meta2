@@ -2,105 +2,66 @@ package pt.isec.pd.rmi;
 
 import org.springframework.stereotype.Service;
 import pt.isec.pd.comum.modelos.mensagens.*;
+import pt.isec.pd.models.Despesa;
 import pt.isec.pd.models.Grupos;
 import pt.isec.pd.models.User;
+import pt.isec.pd.db.Bd; // Importando a classe Bd
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-// tenho que passar a conexao da BD
 
 @Service
 public class RmiService extends UnicastRemoteObject implements RmiInterface {
 
-    private final List<Registo> utilizadores;
-    private final List<CriaDespesa> despesas;
     private final List<RMIObserverInterface> observers;
-    private final List<User> usersList;
-    private final List<Grupos> groupsList;
+    private Bd bd;  // Conexão com a BD
 
-    public RmiService() throws RemoteException {
+    // Injetar a classe Bd no construtor do serviço RMI
+    public RmiService(Bd bd) throws RemoteException {
         super();
-        this.utilizadores = new ArrayList<>();
-        this.despesas = new ArrayList<>();
+        this.bd = bd;  // Inicializando a conexão com a BD
         this.observers = new ArrayList<>();
-        this.usersList = new ArrayList<>();
-        this.groupsList = new ArrayList<>();
     }
 
     // Registo e Autenticação
     @Override
     public boolean registarUtilizador(Registo registo) throws RemoteException {
-        for (Registo u : utilizadores) {
-            if (u.getEmail().equalsIgnoreCase(registo.getEmail())) {
-                System.out.println("Utilizador já registado: " + registo.getEmail());
-                return false;
-            }
-        }
-        utilizadores.add(registo);
-        System.out.println("Novo utilizador registado: " + registo.getEmail());
-        return true;
+        // Utilize a classe Bd para registar o usuário na base de dados
+        return bd.setUserDB(registo.getNome(), registo.getnTelefone(), registo.getEmail(), registo.getPassword());
     }
 
     @Override
     public boolean autenticarUtilizador(Login login) throws RemoteException {
-        for (Registo u : utilizadores) {
-            if (u.getEmail().equalsIgnoreCase(login.getEmail()) && u.getPassword().equals(login.getPassword())) {
-                System.out.println("Utilizador autenticado: " + login.getEmail());
-                return true;
-            }
-        }
-        System.out.println("Falha na autenticação: " + login.getEmail());
-        return false;
+        // Utilize a classe Bd para verificar a autenticação do usuário
+        return bd.getUserDB(login.getEmail(), login.getPassword());
     }
 
     // Lista de Usuários e Grupos
     @Override
     public List<User> obterListaUsuarios() throws RemoteException {
-        return usersList;
+        // Chama o método da classe Bd para obter a lista de usuários
+        return bd.obterUsuarios();  // Supondo que bd seja uma instância da classe Bd
     }
+
 
     @Override
     public List<Grupos> obterListaGrupos(String email) throws RemoteException {
-        return groupsList.stream()
-                .filter(g -> g.getNomeGrupo().contains(email))  // Aqui seria a lógica para garantir a associação correta com o e-mail
-                .collect(Collectors.toList());
-    }
-
-    // Operações com Despesas
-    @Override
-    public boolean inserirDespesa(CriaDespesa criaDespesa) throws RemoteException {
-        Grupos grupo = groupsList.stream()
-                .filter(g -> g.getNomeGrupo().equals(criaDespesa.getGrupo()))
-                .findFirst()
-                .orElse(null);
-
-        if (grupo == null) {
-            System.out.println("Grupo não encontrado: " + criaDespesa.getGrupo());
-            return false;
-        }
-
-        despesas.add(criaDespesa);
-        System.out.println("Despesa inserida no grupo " + criaDespesa.getGrupo());
-        notifyObservers("Nova despesa inserida no grupo " + criaDespesa.getGrupo());
-        return true;
+        // Use Bd para obter grupos de um usuário
+        return bd.listarGruposDB(email);  // Ou o método adequado em Bd
     }
 
     @Override
-    public boolean eliminarDespesa(EliminaDespesa eliminaDespesa) throws RemoteException {
-        for (CriaDespesa d : despesas) {
-            if (d.getGrupo().equals(eliminaDespesa.getGrupoNome())) {
-                despesas.remove(d);
-                System.out.println("Despesa eliminada: " + eliminaDespesa.getID() + " no grupo " + eliminaDespesa.getGrupoNome());
-                notifyObservers("Despesa eliminada: " + eliminaDespesa.getID() + " no grupo " + eliminaDespesa.getGrupoNome());
-                return true;
-            }
-        }
-        System.out.println("Despesa não encontrada: " + eliminaDespesa.getID() + " no grupo " + eliminaDespesa.getGrupoNome());
-        return false;
+    public boolean inserirDespesa(Despesa despesa) throws RemoteException {
+        // Aqui você já tem o objeto despesa com todos os campos configurados, incluindo o email
+        return bd.criaDespesa(despesa.getGrupo(), despesa, despesa.getEmail()); // Passando diretamente o objeto Despesa
+    }
+
+    @Override
+    public boolean eliminarDespesa(Despesa despesa) throws RemoteException {
+        // A lógica de eliminação da despesa vai utilizar a BD
+        return bd.eliminarDespesa(despesa.getEmail(), despesa.getGrupo(), despesa.getIdDespesa());
     }
 
     // Observadores

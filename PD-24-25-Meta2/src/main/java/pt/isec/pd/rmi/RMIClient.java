@@ -1,6 +1,7 @@
 package pt.isec.pd.rmi;
 
 import pt.isec.pd.comum.modelos.mensagens.*;
+import pt.isec.pd.models.Despesa;
 import pt.isec.pd.models.Grupos;
 import pt.isec.pd.models.User;
 
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class RMIClient {
+
+    private static boolean autenticado = false;
 
     public static void main(String[] args) {
         try {
@@ -22,42 +25,63 @@ public class RMIClient {
             Scanner scanner = new Scanner(System.in);
 
             while (true) {
-                System.out.println("\n=== Menu RMI Cliente ===");
-                System.out.println("1. Registrar novo utilizador");
-                System.out.println("2. Autenticar utilizador");
-                System.out.println("3. Inserir despesa");
-                System.out.println("4. Eliminar despesa");
-                System.out.println("5. Listar utilizadores");
-                System.out.println("6. Listar grupos");
-                System.out.println("0. Sair");
-                System.out.print("Escolha uma opção: ");
+                if (!autenticado) {
+                    // Menu inicial (Registrar ou Login)
+                    System.out.println("\n=== Menu Inicial ===");
+                    System.out.println("1. Registrar novo utilizador");
+                    System.out.println("2. Autenticar utilizador");
+                    System.out.println("0. Sair");
+                    System.out.print("Escolha uma opção: ");
 
-                int opcao = scanner.nextInt();
-                scanner.nextLine(); // Consumir a quebra de linha
+                    int opcao = scanner.nextInt();
+                    scanner.nextLine(); // Consumir a quebra de linha
 
-                switch (opcao) {
-                    case 1:
-                        registrarUtilizador(rmiService, scanner);
-                        break;
-                    case 2:
-                        autenticarUtilizador(rmiService, scanner);
-                        break;
-                    case 3:
-                        inserirDespesa(rmiService, scanner);
-                        break;
-                    case 4:
-                        eliminarDespesa(rmiService, scanner);
-                        break;
-                    case 5:
-                        listarUtilizadores(rmiService);
-                    case 6:
-                        listarGrupos(rmiService, scanner);
-                        break;
-                    case 0:
-                        System.out.println("Encerrando o cliente RMI...");
-                        return;
-                    default:
-                        System.out.println("Opção inválida. Tente novamente.");
+                    switch (opcao) {
+                        case 1:
+                            registrarUtilizador(rmiService, scanner);
+                            break;
+                        case 2:
+                            autenticarUtilizador(rmiService, scanner);
+                            break;
+                        case 0:
+                            System.out.println("Encerrando o cliente RMI...");
+                            return;
+                        default:
+                            System.out.println("Opção inválida. Tente novamente.");
+                    }
+                } else {
+                    // Menu de operações após login
+                    System.out.println("\n=== Menu RMI Cliente ===");
+                    System.out.println("1. Inserir despesa");
+                    System.out.println("2. Eliminar despesa");
+                    System.out.println("3. Listar utilizadores");
+                    System.out.println("4. Listar grupos");
+                    System.out.println("5. Sair");
+                    System.out.print("Escolha uma opção: ");
+
+                    int opcao = scanner.nextInt();
+                    scanner.nextLine(); // Consumir a quebra de linha
+
+                    switch (opcao) {
+                        case 1:
+                            inserirDespesa(rmiService, scanner);
+                            break;
+                        case 2:
+                            eliminarDespesa(rmiService, scanner);
+                            break;
+                        case 3:
+                            listarUtilizadores(rmiService);
+                            break;
+                        case 4:
+                            listarGrupos(rmiService, scanner);
+                            break;
+                        case 5:
+                            System.out.println("Estou no ir...");
+                            autenticado = false;
+                            break;
+                        default:
+                            System.out.println("Opção inválida. Tente novamente.");
+                    }
                 }
             }
         } catch (Exception e) {
@@ -99,26 +123,53 @@ public class RMIClient {
             Login login = new Login(email, senha);
             boolean autenticado = rmiService.autenticarUtilizador(login);
 
-            System.out.println(autenticado ? "Autenticação bem-sucedida!" : "Erro: Credenciais inválidas.");
+            if (autenticado) {
+                System.out.println("Autenticação bem-sucedida!");
+                RMIClient.autenticado = true;
+            } else {
+                System.out.println("Erro: Credenciais inválidas.");
+            }
         } catch (Exception e) {
             System.err.println("Erro ao autenticar utilizador: " + e.getMessage());
         }
     }
 
-    private static void inserirDespesa(RmiInterface rmiService, Scanner scanner) {
+    public static void inserirDespesa(RmiInterface rmiService, Scanner scanner) {
         try {
             System.out.println("\n=== Inserir Despesa ===");
+
+            // Coletando os dados necessários
             System.out.print("Nome do grupo: ");
             String grupoNome = scanner.nextLine();
+
             System.out.print("Valor da despesa: ");
             double valor = scanner.nextDouble();
             scanner.nextLine(); // Consumir a quebra de linha
 
-            // Criando objeto CriaDespesa com os argumentos na ordem correta
-            CriaDespesa criaDespesa = new CriaDespesa(valor, grupoNome);
+            // Pedir o email do usuário
+            System.out.print("Seu email: ");
+            String email = scanner.nextLine();
 
-            // Chamando o método do serviço RMI
-            boolean sucesso = rmiService.inserirDespesa(criaDespesa);
+            System.out.print("Descrição da despesa: ");
+            String descricao = scanner.nextLine();
+
+            System.out.print("Quem pagou a despesa: ");
+            String quemPagou = scanner.nextLine();
+
+            System.out.print("Data da despesa: ");
+            String data = scanner.nextLine();
+
+            // Criando objeto Despesa
+            Despesa despesa = new Despesa();
+            despesa.setGrupo(grupoNome);
+            despesa.setValor(valor);
+            despesa.setEmail(email);
+            despesa.setDescricao(descricao);
+            despesa.setQuemPagou(quemPagou);
+            despesa.setData(data);
+
+            // Chamando o método do serviço RMI para inserir a despesa
+            boolean sucesso = rmiService.inserirDespesa(despesa);
 
             // Resultado
             System.out.println(sucesso ? "Despesa inserida com sucesso!" : "Erro ao inserir despesa.");
@@ -130,15 +181,33 @@ public class RMIClient {
     private static void eliminarDespesa(RmiInterface rmiService, Scanner scanner) {
         try {
             System.out.println("\n=== Eliminar Despesa ===");
+
+            // Coletar os dados necessários
             System.out.print("Nome do grupo: ");
-            String grupoNome = scanner.nextLine();
+            String grupoNome = scanner.nextLine().trim(); // Usar trim para remover espaços extras
+
             System.out.print("ID da despesa: ");
-            String idDespesa = scanner.nextLine();
+            String idDespesa = scanner.nextLine().trim();
 
-            EliminaDespesa eliminaDespesa = new EliminaDespesa(idDespesa, grupoNome);
-            boolean sucesso = rmiService.eliminarDespesa(eliminaDespesa);
+            // Verificar se os dados são válidos
+            if (grupoNome.isEmpty() || idDespesa.isEmpty()) {
+                System.out.println("Erro: Nome do grupo ou ID da despesa não podem estar vazios.");
+                return;
+            }
+            // Criando o objeto Despesa
+            Despesa despesa = new Despesa();
+            despesa.setGrupo(grupoNome);
+            despesa.setIdDespesa(idDespesa);
+            // Chamar o método do serviço RMI para eliminar a despesa
+            boolean sucesso = rmiService.eliminarDespesa(despesa);
 
-            System.out.println(sucesso ? "Despesa eliminada com sucesso!" : "Erro ao eliminar despesa.");
+            // Exibir o resultado
+            if (sucesso) {
+                System.out.println("Despesa eliminada com sucesso!");
+            } else {
+                System.out.println("Erro: Despesa não encontrada ou falha ao eliminar.");
+            }
+
         } catch (Exception e) {
             System.err.println("Erro ao eliminar despesa: " + e.getMessage());
         }
