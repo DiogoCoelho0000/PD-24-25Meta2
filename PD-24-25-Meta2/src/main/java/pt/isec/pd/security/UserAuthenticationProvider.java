@@ -15,15 +15,15 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		String username = authentication.getName();
 		String password = authentication.getCredentials().toString();
-		//Bd.ligaBD("Base_de_dados");
+		Bd.ligaBD("Base_de_dados");
 
 		if (Bd.getUserDB(username,password)) {
+			Bd.desligaBD("Base_de_dados");
 			return new UsernamePasswordAuthenticationToken(username, password, null);
 		}
+		Bd.desligaBD("Base_de_dados");
 		throw new BadCredentialsException("Utilizador não existe");
 	}
-
-	// Ligacao a BD não vai ser aqui , Springboot é que tem que fazer
 
 	@Override
 	public boolean supports(Class<?> authentication) {
