@@ -1,4 +1,4 @@
-package pt.isec.pd.rmi;
+package pt.isec.pd.rmi.observer;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

@@ -1,4 +1,4 @@
-package pt.isec.pd.rmi;
+package pt.isec.pd.rmi.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

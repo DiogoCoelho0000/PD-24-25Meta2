@@ -1,19 +1,19 @@
-package pt.isec.pd.rmi;
+package pt.isec.pd.rmi.cliente;
 
 import pt.isec.pd.comum.modelos.mensagens.*;
 import pt.isec.pd.models.Despesa;
 import pt.isec.pd.models.Grupos;
 import pt.isec.pd.models.User;
+import pt.isec.pd.rmi.server.RmiInterface;
 
 import java.rmi.Naming;
-import java.rmi.registry.LocateRegistry;
 import java.util.List;
 import java.util.Scanner;
 
 public class RMIClient {
 
     private static boolean autenticado = false;
-
+    private static String nomeUser = null;
     public static void main(String[] args) {
         try {
             // Conectar-se ao RMI registry no servidor
@@ -125,6 +125,7 @@ public class RMIClient {
 
             if (autenticado) {
                 System.out.println("Autenticação bem-sucedida!");
+                nomeUser = email;
                 RMIClient.autenticado = true;
             } else {
                 System.out.println("Erro: Credenciais inválidas.");
@@ -196,6 +197,7 @@ public class RMIClient {
             }
             // Criando o objeto Despesa
             Despesa despesa = new Despesa();
+            despesa.setEmail(nomeUser);
             despesa.setGrupo(grupoNome);
             despesa.setIdDespesa(idDespesa);
             // Chamar o método do serviço RMI para eliminar a despesa
@@ -216,7 +218,7 @@ public class RMIClient {
     private static void listarUtilizadores(RmiInterface rmiService) {
         try {
             System.out.println("\n=== Lista de Utilizadores ===");
-            List<User> users = rmiService.obterListaUsuarios();
+            List<User> users = rmiService.obterListaUsers();
 
             if (users.isEmpty()) {
                 System.out.println("Nenhum utilizador encontrado.");
