@@ -13,6 +13,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// Criar Servicos
+// Fazer servicos para a BD
+// Tem que ser alterado , colocar @Configuration e outras coisas
+
 public class Bd {
 
 
