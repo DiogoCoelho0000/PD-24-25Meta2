@@ -17,25 +17,23 @@ import java.util.List;
 public class RmiService extends UnicastRemoteObject implements RmiInterface {
 
     private final List<RMIObserverInterface> observers;
-    private Bd bd;  // Conexão com a BD
+    private Bd bd;
     private static String nomeUser = null;
-    // Injetar a classe Bd no construtor do serviço RMI
+
     public RmiService(Bd bd) throws RemoteException {
         super();
-        this.bd = bd;  // Inicializando a conexão com a BD
+        this.bd = bd;
         this.observers = new ArrayList<>();
     }
 
     // Registo e Autenticação
     @Override
     public boolean registarUtilizador(Registo registo) throws RemoteException {
-        // Utilize a classe Bd para registar o usuário na base de dados
+
         boolean resultado = bd.setUserDB(registo.getNome(), registo.getnTelefone(), registo.getEmail(), registo.getPassword());
         if (resultado) {
-            // Notifique os observadores apenas se o registro for bem-sucedido
             notifyObservers("Cliente " + registo.getNome() + " registado com sucesso!");
         } else {
-            // Se houver erro, também notifique os observadores
             notifyObservers("Erro ao registar o cliente!");
         }
 
@@ -45,7 +43,6 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
 
     @Override
     public boolean autenticarUtilizador(Login login) throws RemoteException {
-        // Utilize a classe Bd para verificar a autenticação do usuário
         boolean resultado = bd.getUserDB(login.getEmail(), login.getPassword());
 
         if (resultado) {
@@ -68,37 +65,9 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
     @Override
     public List<Grupos> obterListaGrupos() throws RemoteException {
         notifyObservers("Um cliente requisitou a lista de todos os grupos!");
-        return bd.listarGruposDB(); // Chama o novo método ajustado
+        return bd.listarGruposDB();
     }
 
-    @Override
-    public boolean inserirDespesa(Despesa despesa) throws RemoteException {
-        boolean resultado =  bd.criaDespesa(despesa.getGrupo(), despesa, despesa.getEmail()); // Passando diretamente o objeto Despesa
-
-        if (resultado){
-            notifyObservers("Cliente " + nomeUser + " inseriu uma despesa com sussesso!");
-        }
-        else {
-            notifyObservers("Cliente " + nomeUser + " erro ao inserir despesa");
-        }
-        return resultado;
-    }
-
-    @Override
-    public boolean eliminarDespesa(Despesa despesa) throws RemoteException {
-        System.out.println(despesa.getEmail()+despesa.getGrupo()+despesa.getIdDespesa());
-        boolean resultado =  bd.eliminarDespesa(despesa.getEmail(), despesa.getGrupo(), despesa.getIdDespesa());
-
-        if (resultado){
-            notifyObservers("Cliente " + nomeUser + " eliminou uma despesa com sussesso!");
-        }
-        else {
-            notifyObservers("Cliente " + nomeUser + " erro ao eliminar uma despesa");
-        }
-        return resultado;
-    }
-
-    // Observadores
     @Override
     public void addObserver(RMIObserverInterface observer) throws RemoteException {
         observers.add(observer);
@@ -112,9 +81,6 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
     }
 
     public void notifyObservers(String description) {
-        observers.removeIf(observer -> {
-            try {
-
         observers.removeIf(observer -> {
             try {
                 System.out.println("ADEUS");

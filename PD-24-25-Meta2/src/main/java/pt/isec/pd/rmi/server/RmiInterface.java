@@ -17,14 +17,9 @@ public interface RmiInterface extends Remote {
     boolean autenticarUtilizador(Login login) throws RemoteException;
 
     // Lista de Usuários e Grupos
-    List<User> obterListaUsers() throws RemoteException;  // Retorna a lista de usuários
-   // List<Grupos> obterListaGrupos(String email) throws RemoteException;  // Retorna os grupos associados a um usuário
+    List<User> obterListaUsers() throws RemoteException;
 
     List<Grupos> obterListaGrupos() throws RemoteException;
-
-    // Operações com Despesas
-    boolean inserirDespesa(Despesa criaDespesa) throws RemoteException;
-    boolean eliminarDespesa(Despesa eliminaDespesa) throws RemoteException;
 
     // Método para adicionar observadores
     void addObserver(RMIObserverInterface observer) throws RemoteException;

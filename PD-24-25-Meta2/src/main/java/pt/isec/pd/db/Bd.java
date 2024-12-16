@@ -11,16 +11,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// Criar Servicos
-// Fazer servicos para a BD
-// Tem que ser alterado , colocar @Configuration e outras coisas
-
 @Component
 public class Bd{
 
     private static Connection conn = null;
     private static boolean estaConectado = false;
-    //private static final Object lock = new Object();
+
 
     public static boolean verificaExistenciaBD(String bd) {
         File ficheiroBD = new File(bd);
@@ -34,8 +30,6 @@ public class Bd{
             bd = "src/main/java/pt/isec/pd/db/" + bd + ".db";
             if (verificaExistenciaBD(bd)) {
                 conn = DriverManager.getConnection(link + bd);
-                //conn.setAutoCommit(false);
-                //System.out.println("->" + conn);
                 System.out.println("Ligação efectuada com sucesso!");
                 setEstaConectado(true);
             } else {
@@ -200,37 +194,16 @@ public class Bd{
             pstmt.setString(2, email);
             ResultSet rs = pstmt.executeQuery();
 
-            return rs.next(); // Se houver um resultado, o usuário pertence ao grupo
+            return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    //Não esquecer que para eliminar o grupo, primeiro tem de se verificar se há dividas por salvar
-    public static Estados eliminarGrupoDB(String grupoNome, String eliminadoPor) {
-        String sql = "DELETE FROM GRUPO WHERE NOME = ?";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, grupoNome);
-            int affectedRows = pstmt.executeUpdate();
-
-            if (affectedRows > 0) {
-                versaoUpdate();
-                return Estados.GRUPO_ELIMINADO_COM_SUCESSO;
-            } else {
-                return Estados.ERRO_GRUPO_NAO_ENCONTRADO;
-            }
-        } catch (SQLException e) {
-            System.err.println("Erro ao eliminar grupo: " + e.getMessage());
-            return Estados.ERRO_GRUPO;
-        }
-    }
-
     public static List<Grupos> listarGruposDB() {
         List<Grupos> grupos = new ArrayList<>();
 
-        // SQL para buscar todos os grupos
         String sql = "SELECT NOME FROM GRUPO";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -447,7 +420,6 @@ public class Bd{
 
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                // Obtém os dados de cada usuário e cria um objeto User
                 int id = rs.getInt("ID");
                 String nome = rs.getString("NOME");
                 int nTelefone = rs.getInt("N_TELEFONE");

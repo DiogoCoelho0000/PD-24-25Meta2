@@ -19,8 +19,6 @@ import pt.isec.pd.db.Bd;
 import pt.isec.pd.rmi.server.RMIServiceLauncher;
 import pt.isec.pd.security.RsaKeysProperties;
 
-import pt.isec.pd.rmi.server.RMIServiceLauncher;
-
 @SpringBootApplication
 @ConfigurationPropertiesScan
 public class Application {
@@ -42,7 +40,6 @@ public class Application {
 		resourceDirectory = args[0];
 		SpringApplication.run(Application.class, args);
 
-		// Conectar ao banco de dados
 		Bd.ligaBD("Base_de_dados");
 	}
 

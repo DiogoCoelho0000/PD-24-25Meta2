@@ -34,17 +34,6 @@ public class LoremController {
 		}
 	}
 
-	/*@PostMapping
-	public ResponseEntity postText(@RequestBody LoremConfig config) {
-		if (config.getType() == null)
-			return ResponseEntity.badRequest().body("Type is mandatory.");
-
-		if (config.getLength() == null)
-			config.setLength(1);
-
-		return generateLorem(config.getType(), config.getLength());
-	}*/
-
 	@GetMapping
 	public ResponseEntity getTextRandomType(@RequestParam(value = "type", required = false) String type,
 	                                        @RequestParam(value = "length", required = false) Integer length) {

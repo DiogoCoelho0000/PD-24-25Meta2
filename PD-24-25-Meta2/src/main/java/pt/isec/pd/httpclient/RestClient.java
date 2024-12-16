@@ -12,23 +12,28 @@ import static pt.isec.pd.db.Bd.listarDespesas;
 
 public class RestClient {
     private static String jwtToken = null;
-    private static final String BASE_URL = "http://localhost:8080"; // Altere para o endpoint do servidor
+    private static final String BASE_URL = "http://localhost:8080";
     private static String userAutenticado;
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
             if (jwtToken == null) {
-                System.out.println("1. Registrar");
+                System.out.println("1. Registar");
                 System.out.println("2. Login");
+                System.out.println("3. Sair");
                 System.out.print("Escolha uma opção: ");
                 int choice = scanner.nextInt();
-                scanner.nextLine(); // Consome o newline
+                scanner.nextLine();
 
                 if (choice == 1) {
-                    registrar(scanner);
+                    registar(scanner);
                 } else if (choice == 2) {
                     login(scanner);
+                } else if (choice == 3) {
+                    System.out.println("Desligar o RestClient...");
+                    break;
                 } else {
                     System.out.println("Opção inválida.");
                 }
@@ -36,11 +41,11 @@ public class RestClient {
                 System.out.println("1. Listar grupos");
                 System.out.println("2. Inserir despesa");
                 System.out.println("3. Eliminar despesa");
-                System.out.println("4. Listar depesas");
+                System.out.println("4. Listar despesas");
                 System.out.println("5. Sair");
                 System.out.print("Escolha uma opção: ");
                 int choice = scanner.nextInt();
-                scanner.nextLine(); // Consome o newline
+                scanner.nextLine();
 
                 switch (choice) {
                     case 1 -> listarGrupos();
@@ -57,7 +62,7 @@ public class RestClient {
         }
     }
 
-    private static void registrar(Scanner scanner) {
+    private static void registar(Scanner scanner) {
         System.out.print("Nome: ");
         String nome = scanner.nextLine();
         System.out.print("Email: ");
@@ -100,6 +105,7 @@ public class RestClient {
         System.out.println("Grupos:");
         System.out.println(response);
     }
+
     private static void listarDespesas(Scanner scanner) {
         System.out.print("Nome do grupo: ");
         String grupoNome = scanner.nextLine();
@@ -114,9 +120,8 @@ public class RestClient {
         System.out.print("Descrição: ");
         String descricao = scanner.nextLine();
         System.out.print("Valor: ");
-        /*double valor = scanner.nextDouble();*/
         String valor = scanner.nextLine();
-        scanner.nextLine(); // Consome o newline
+        scanner.nextLine();
         System.out.print("Data (YYYY-MM-DD): ");
         String data = scanner.nextLine();
         System.out.print("Quem pagou: ");
