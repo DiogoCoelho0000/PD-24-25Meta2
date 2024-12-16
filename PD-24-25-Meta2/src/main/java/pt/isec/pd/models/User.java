@@ -3,12 +3,12 @@ package pt.isec.pd.models;
 import java.io.Serializable;
 
 public class User implements Serializable {
-    private int id;  // ID do usuário
-    private int nTelefone;  // Número de telefone
-    private String email;  // Email do usuário
-    private String password;  // Senha do usuário
-    private String nome;  // Nome do usuário
-    private boolean estado;  // Estado de ativação do usuário (ativo ou inativo)
+    private int id;
+    private int nTelefone;
+    private String email;
+    private String password;
+    private String nome;
+    private boolean estado;
 
     // Construtor
     public User(int id, String nome, String email, String password, int nTelefone) {
@@ -17,7 +17,6 @@ public class User implements Serializable {
         this.email = email;
         this.password = password;
         this.nTelefone = nTelefone;
-       // this.estado = estado;
     }
 
     // Getter e Setter para o ID
@@ -29,7 +28,6 @@ public class User implements Serializable {
         this.id = id;
     }
 
-    // Getter e Setter para o Número de Telefone
     public int getnTelefone() {
         return nTelefone;
     }

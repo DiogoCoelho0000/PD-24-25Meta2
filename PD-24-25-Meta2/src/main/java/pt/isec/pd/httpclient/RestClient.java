@@ -1,5 +1,8 @@
 package pt.isec.pd.httpclient;
 
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -110,9 +113,35 @@ public class RestClient {
         System.out.print("Nome do grupo: ");
         String grupoNome = scanner.nextLine();
         String response = sendRequest("/despesa/minhas-despesas/" + grupoNome, "GET", null, jwtToken);
-        System.out.println("Despesas:");
-        System.out.println(response);
+
+        if (response != null && !response.isEmpty()) {
+            try {
+                JSONArray despesas = new JSONArray(response);
+
+                if (despesas.length() == 0) {
+                    System.out.println("Nenhuma despesa encontrada para o grupo: " + grupoNome);
+                } else {
+                    System.out.println("Despesas para o grupo " + grupoNome + ":");
+                    for (int i = 0; i < despesas.length(); i++) {
+                        JSONObject despesa = despesas.getJSONObject(i);
+                        System.out.println("Despesa #" + (i + 1));
+                        System.out.println("ID: " + despesa.getString("idDespesa"));
+                        System.out.println("Descrição: " + despesa.getString("descricao"));
+                        System.out.println("Valor: " + despesa.getDouble("valor"));
+                        System.out.println("Data: " + despesa.getString("data"));
+                        System.out.println("Quem pagou: " + despesa.getString("quemPagou"));
+                        System.out.println("-------------------------------------");
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Erro ao processar a resposta do servidor.");
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Não foi possível obter as despesas.");
+        }
     }
+
 
     private static void inserirDespesa(Scanner scanner) {
         System.out.print("Nome do grupo: ");

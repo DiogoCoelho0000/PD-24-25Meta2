@@ -12,17 +12,16 @@ public class RMIClient {
 
     public static void main(String[] args) {
         try {
-            // Conectar-se ao RMI registry no servidor
+
             String serviceUrl = "rmi://localhost:1099/RmiService";
             RmiInterface rmiService = (RmiInterface) Naming.lookup(serviceUrl);
             System.out.println("Conectado ao servidor RMI.");
 
-            // Criar scanner para entrada do usuário
+
             Scanner scanner = new Scanner(System.in);
 
-            // Menu principal
             while (true) {
-                // Menu de operações
+
                 System.out.println("\n=== Menu RMI Cliente ===");
                 System.out.println("1. Listar utilizadores");
                 System.out.println("2. Listar grupos");
@@ -30,7 +29,7 @@ public class RMIClient {
                 System.out.print("Escolha uma opção: ");
 
                 int opcao = scanner.nextInt();
-                scanner.nextLine(); // Consumir a quebra de linha
+                scanner.nextLine();
 
                 switch (opcao) {
                     case 1:
@@ -41,7 +40,7 @@ public class RMIClient {
                         break;
                     case 3:
                         System.out.println("Encerrando o cliente RMI...");
-                        return; // Sair do programa
+                        return;
                     default:
                         System.out.println("Opção inválida. Tente novamente.");
                 }

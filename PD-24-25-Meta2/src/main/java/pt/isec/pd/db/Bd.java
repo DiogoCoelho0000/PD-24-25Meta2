@@ -200,6 +200,32 @@ public class Bd{
             return false;
         }
     }
+    public static List<Grupos> listarGruposDB2(String solicitadoPor) {
+        List<Grupos> grupos = new ArrayList<>();
+
+        String sql = "SELECT G.NOME " +
+                "FROM GRUPO G " +
+                "JOIN INTEGRA I ON G.ID = I.GROUP_ID " +
+                "JOIN USERS U ON U.ID = I.USER_ID " +
+                "WHERE U.EMAIL = ?";
+        System.out.println("AQUI");
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, solicitadoPor);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Grupos grupo = new Grupos();
+                grupo.setNomeGrupo(rs.getString("NOME"));
+                grupos.add(grupo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return grupos;
+
+    }
 
     public static List<Grupos> listarGruposDB() {
         List<Grupos> grupos = new ArrayList<>();

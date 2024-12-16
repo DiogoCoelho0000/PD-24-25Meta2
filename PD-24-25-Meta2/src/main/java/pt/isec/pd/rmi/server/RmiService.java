@@ -60,8 +60,7 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
         notifyObservers("Cliente " + nomeUser + " requisitou a lista de utilizadores!");
         return bd.obterUsers();
     }
-
-
+    
     @Override
     public List<Grupos> obterListaGrupos() throws RemoteException {
         notifyObservers("Um cliente requisitou a lista de todos os grupos!");

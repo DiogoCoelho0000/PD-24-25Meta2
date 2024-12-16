@@ -25,13 +25,13 @@ public class GroupsController {
     @GetMapping("/meus-grupos")
     public List<Grupos> listarGrupos(/*@RequestParam String email,*/ Authentication authentication) {
 
-        //String usuarioAutenticado = authentication.getName();
+        String usuarioAutenticado = authentication.getName();
 
 
         List<Grupos> grupos = new ArrayList<>();
         try {
             Bd.ligaBD("Base_de_dados");
-            grupos = Bd.listarGruposDB();
+            grupos = Bd.listarGruposDB2(usuarioAutenticado);
             rmiService.notifyObservers("O cliente " + authentication.getName() + "listou grupos: ");
             Bd.desligaBD("Base_de_dados");
             System.out.println(grupos);
