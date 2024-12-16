@@ -19,6 +19,7 @@ import pt.isec.pd.db.Bd;
 import pt.isec.pd.rmi.server.RMIServiceLauncher;
 import pt.isec.pd.security.RsaKeysProperties;
 
+import pt.isec.pd.rmi.server.RMIServiceLauncher;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan

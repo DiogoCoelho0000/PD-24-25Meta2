@@ -10,10 +10,11 @@ import java.rmi.registry.LocateRegistry;
 
 @Component
 public class RMIServiceLauncher {
-
+/*
     // Injeção de dependência da classe Bd (Banco de Dados)
     @Autowired
     private Bd bd; // O Spring irá injetar a instância de Bd automaticamente
+
 
     public void start() throws RemoteException {
         // Porta onde o RMI Registry será iniciado
@@ -37,5 +38,31 @@ public class RMIServiceLauncher {
             System.err.println("Erro ao iniciar o serviço RMI: " + e.getMessage());
             e.printStackTrace();
         }
+    }*/
+private final RmiService rmiService;
+
+    @Autowired
+    public RMIServiceLauncher(RmiService rmiService) {
+        this.rmiService = rmiService;
     }
+
+    public void start() throws RemoteException {
+        int registryPort = 1099;
+        String hostname = "127.0.0.1";
+
+        try {
+            LocateRegistry.createRegistry(registryPort);
+            System.out.println("RMI Registry iniciado na porta " + registryPort);
+
+            String serviceName = "RmiService";
+            String serviceUrl = "rmi://" + hostname + ":" + registryPort + "/" + serviceName;
+
+            Naming.rebind(serviceUrl, rmiService); // Registra a instância do Spring
+            System.out.println("Serviço RMI registrado em: " + serviceUrl);
+        } catch (Exception e) {
+            System.err.println("Erro ao iniciar o serviço RMI: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

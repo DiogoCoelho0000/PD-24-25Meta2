@@ -105,6 +105,7 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
         System.out.println("Novo observador adicionado.");
     }
 
+    @Override
     public void removeObserver(RMIObserverInterface observer) throws RemoteException {
         observers.remove(observer);
         System.out.println("Observador removido.");
@@ -113,6 +114,10 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
     public void notifyObservers(String description) {
         observers.removeIf(observer -> {
             try {
+
+        observers.removeIf(observer -> {
+            try {
+                System.out.println("ADEUS");
                 observer.Notification(description);
                 return false;
             } catch (RemoteException e) {

@@ -1,6 +1,5 @@
 package pt.isec.pd.db;
 
-//import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Component;
 import pt.isec.pd.comum.enumeracoes.Estados;
 import pt.isec.pd.models.Despesa;
@@ -16,7 +15,6 @@ import java.util.List;
 // Fazer servicos para a BD
 // Tem que ser alterado , colocar @Configuration e outras coisas
 
-/*@Component*/
 @Component
 public class Bd{
 
