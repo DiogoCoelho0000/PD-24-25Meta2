@@ -6,13 +6,18 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pt.isec.pd.db.Bd;
 import pt.isec.pd.models.Despesa;
+import pt.isec.pd.rmi.server.RmiService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/despesa")
 public class DespesaController {
+    private final RmiService rmiService;
 
+    public DespesaController(RmiService rmiService) {
+        this.rmiService = rmiService;
+    }
 
     @GetMapping("/eliminar/{grupoNome}/{idDespesa}")
     public ResponseEntity<String> eliminarDespesa(@PathVariable String grupoNome,
@@ -32,6 +37,7 @@ public class DespesaController {
 
         if (despesaEliminada) {
             Bd.desligaBD("Base_de_dados");
+            rmiService.notifyObservers("O cliente " + authentication.getName() + "eliminou a despesa com ID: "+ idDespesa);
             return ResponseEntity.ok("Despesa eliminada com sucesso");
         } else {
             Bd.desligaBD("Base_de_dados");
@@ -57,7 +63,7 @@ public class DespesaController {
             Bd.desligaBD("Base_de_dados");
             return ResponseEntity.status(404).body("Não há despesas associadas a este grupo.");
         }
-
+        rmiService.notifyObservers("O cliente " + authentication.getName() + "listou despesas: ");
         return ResponseEntity.ok(despesas);
     }
 
@@ -85,6 +91,7 @@ public class DespesaController {
         Bd.desligaBD("Base_de_dados");
         if (despesaInserida) {
             Bd.desligaBD("Base_de_dados");
+            rmiService.notifyObservers("O cliente " + authentication.getName() + "criou uma a despesa");
             return ResponseEntity.ok("Despesa inserida com sucesso");
         } else {
             Bd.desligaBD("Base_de_dados");

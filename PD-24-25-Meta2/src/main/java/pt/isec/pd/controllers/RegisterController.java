@@ -8,20 +8,20 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 import pt.isec.pd.db.Bd;
 import pt.isec.pd.models.RegisterRequest;
+import pt.isec.pd.rmi.server.RmiService;
 
 @RestController
 @RequestMapping("/register")
 public class RegisterController {
     private final AuthenticationManager authenticationManager;
-
-    public RegisterController(AuthenticationManager authenticationManager) {
+    private final RmiService rmiService;
+    public RegisterController(AuthenticationManager authenticationManager, RmiService rmiService) {
         this.authenticationManager = authenticationManager;
+        this.rmiService = rmiService;
     }
     @PostMapping
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        // Implementar o processo de criação de usuário
         try {
-            // Lógica para registrar o usuário
             Bd.ligaBD("Base_de_dados");
 
             boolean userCreated = Bd.setUserDB(
@@ -30,8 +30,8 @@ public class RegisterController {
                     registerRequest.getEmail(),
                     registerRequest.getPassword()
             );
-
             if (userCreated) {
+                rmiService.notifyObservers("O cliente registou com sucesso");
                 return ResponseEntity.ok("Registo efetuado com sucesso");
             } else {
                 return ResponseEntity.badRequest().body("O utilizador já existe");
@@ -40,24 +40,4 @@ public class RegisterController {
             return ResponseEntity.status(500).body("Erro ao registrar o usuário");
         }
     }
-
-/*    @PostMapping
-    public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
-        System.out.println("REGISTO");
-        Bd.ligaBD("Base_de_dados");
-
-        boolean userCreated = Bd.setUserDB(
-                registerRequest.getUsername(),
-                registerRequest.getnTelefone(),
-                registerRequest.getEmail(),
-                registerRequest.getPassword()
-        );
-
-        if (userCreated) {
-            return ResponseEntity.ok("Registo efectuado com sucesso");
-        } else {
-            return ResponseEntity.badRequest().body("O utilizador ja existe");
-        }
-    }*/
-
 }

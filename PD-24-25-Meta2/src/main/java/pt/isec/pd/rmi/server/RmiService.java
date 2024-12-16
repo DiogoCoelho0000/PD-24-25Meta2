@@ -111,9 +111,11 @@ public class RmiService extends UnicastRemoteObject implements RmiInterface {
         System.out.println("Observador removido.");
     }
 
-    private void notifyObservers(String description) {
+    public void notifyObservers(String description) {
+
         observers.removeIf(observer -> {
             try {
+                System.out.println("ADEUS");
                 observer.Notification(description);
                 return false;
             } catch (RemoteException e) {

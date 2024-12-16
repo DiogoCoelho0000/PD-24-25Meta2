@@ -14,6 +14,7 @@ public class RMIClient {
 
     private static boolean autenticado = false;
     private static String nomeUser = null;
+
     public static void main(String[] args) {
         try {
             // Conectar-se ao RMI registry no servidor
@@ -52,11 +53,9 @@ public class RMIClient {
                 } else {
                     // Menu de operações após login
                     System.out.println("\n=== Menu RMI Cliente ===");
-                    System.out.println("1. Inserir despesa");
-                    System.out.println("2. Eliminar despesa");
-                    System.out.println("3. Listar utilizadores");
-                    System.out.println("4. Listar grupos");
-                    System.out.println("5. Sair");
+                    System.out.println("1. Listar utilizadores");
+                    System.out.println("2. Listar grupos");
+                    System.out.println("3. Sair");
                     System.out.print("Escolha uma opção: ");
 
                     int opcao = scanner.nextInt();
@@ -64,18 +63,12 @@ public class RMIClient {
 
                     switch (opcao) {
                         case 1:
-                            inserirDespesa(rmiService, scanner);
-                            break;
-                        case 2:
-                            eliminarDespesa(rmiService, scanner);
-                            break;
-                        case 3:
                             listarUtilizadores(rmiService);
                             break;
-                        case 4:
-                            listarGrupos(rmiService, scanner);
+                        case 2:
+                            listarGrupos(rmiService);
                             break;
-                        case 5:
+                        case 3:
                             System.out.println("Estou no ir...");
                             autenticado = false;
                             break;
@@ -135,86 +128,6 @@ public class RMIClient {
         }
     }
 
-    public static void inserirDespesa(RmiInterface rmiService, Scanner scanner) {
-        try {
-            System.out.println("\n=== Inserir Despesa ===");
-
-            // Coletando os dados necessários
-            System.out.print("Nome do grupo: ");
-            String grupoNome = scanner.nextLine();
-
-            System.out.print("Valor da despesa: ");
-            double valor = scanner.nextDouble();
-            scanner.nextLine(); // Consumir a quebra de linha
-
-            // Pedir o email do usuário
-            System.out.print("Seu email: ");
-            String email = scanner.nextLine();
-
-            System.out.print("Descrição da despesa: ");
-            String descricao = scanner.nextLine();
-
-            System.out.print("Quem pagou a despesa: ");
-            String quemPagou = scanner.nextLine();
-
-            System.out.print("Data da despesa: ");
-            String data = scanner.nextLine();
-
-            // Criando objeto Despesa
-            Despesa despesa = new Despesa();
-            despesa.setGrupo(grupoNome);
-            despesa.setValor(valor);
-            despesa.setEmail(email);
-            despesa.setDescricao(descricao);
-            despesa.setQuemPagou(quemPagou);
-            despesa.setData(data);
-
-            // Chamando o método do serviço RMI para inserir a despesa
-            boolean sucesso = rmiService.inserirDespesa(despesa);
-
-            // Resultado
-            System.out.println(sucesso ? "Despesa inserida com sucesso!" : "Erro ao inserir despesa.");
-        } catch (Exception e) {
-            System.err.println("Erro ao inserir despesa: " + e.getMessage());
-        }
-    }
-
-    private static void eliminarDespesa(RmiInterface rmiService, Scanner scanner) {
-        try {
-            System.out.println("\n=== Eliminar Despesa ===");
-
-            // Coletar os dados necessários
-            System.out.print("Nome do grupo: ");
-            String grupoNome = scanner.nextLine().trim(); // Usar trim para remover espaços extras
-
-            System.out.print("ID da despesa: ");
-            String idDespesa = scanner.nextLine().trim();
-
-            // Verificar se os dados são válidos
-            if (grupoNome.isEmpty() || idDespesa.isEmpty()) {
-                System.out.println("Erro: Nome do grupo ou ID da despesa não podem estar vazios.");
-                return;
-            }
-            // Criando o objeto Despesa
-            Despesa despesa = new Despesa();
-            despesa.setEmail(nomeUser);
-            despesa.setGrupo(grupoNome);
-            despesa.setIdDespesa(idDespesa);
-            // Chamar o método do serviço RMI para eliminar a despesa
-            boolean sucesso = rmiService.eliminarDespesa(despesa);
-
-            // Exibir o resultado
-            if (sucesso) {
-                System.out.println("Despesa eliminada com sucesso!");
-            } else {
-                System.out.println("Erro: Despesa não encontrada ou falha ao eliminar.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erro ao eliminar despesa: " + e.getMessage());
-        }
-    }
-
     private static void listarUtilizadores(RmiInterface rmiService) {
         try {
             System.out.println("\n=== Lista de Utilizadores ===");
@@ -230,16 +143,13 @@ public class RMIClient {
         }
     }
 
-    private static void listarGrupos(RmiInterface rmiService, Scanner scanner) {
+    private static void listarGrupos(RmiInterface rmiService) {
         try {
-            System.out.println("\n=== Lista de Grupos ===");
-            System.out.print("Digite seu email para listar os grupos: ");
-            String email = scanner.nextLine();
-
-            List<Grupos> grupos = rmiService.obterListaGrupos(email);
+            System.out.println("\n=== Lista de Todos os Grupos ===");
+            List<Grupos> grupos = rmiService.obterListaGrupos();
 
             if (grupos.isEmpty()) {
-                System.out.println("Nenhum grupo associado a este email.");
+                System.out.println("Nenhum grupo disponível.");
             } else {
                 grupos.forEach(grupo -> System.out.println("- " + grupo.getNomeGrupo()));
             }
