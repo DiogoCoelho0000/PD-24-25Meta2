@@ -11,13 +11,13 @@ public class User implements Serializable {
     private boolean estado;  // Estado de ativação do usuário (ativo ou inativo)
 
     // Construtor
-    public User(int id, String nome, String email, String password, int nTelefone, boolean estado) {
+    public User(int id, String nome, String email, String password, int nTelefone) {
         this.id = id;
         this.nome = nome;
         this.email = email;
         this.password = password;
         this.nTelefone = nTelefone;
-        this.estado = estado;
+       // this.estado = estado;
     }
 
     // Getter e Setter para o ID

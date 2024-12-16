@@ -19,13 +19,13 @@ public class GroupsController {
     @GetMapping("/meus-grupos")
     public List<Grupos> listarGrupos(/*@RequestParam String email,*/ Authentication authentication) {
 
-        String usuarioAutenticado = authentication.getName();
+        //String usuarioAutenticado = authentication.getName();
 
 
         List<Grupos> grupos = new ArrayList<>();
         try {
             Bd.ligaBD("Base_de_dados");
-            grupos = Bd.listarGruposDB(usuarioAutenticado);
+            grupos = Bd.listarGruposDB();
             Bd.desligaBD("Base_de_dados");
             System.out.println(grupos);
         } catch (Exception e) {

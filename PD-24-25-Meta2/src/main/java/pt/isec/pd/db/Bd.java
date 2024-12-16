@@ -1,5 +1,6 @@
 package pt.isec.pd.db;
 
+//import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Component;
 import pt.isec.pd.comum.enumeracoes.Estados;
 import pt.isec.pd.models.Despesa;
@@ -15,9 +16,9 @@ import java.util.List;
 // Fazer servicos para a BD
 // Tem que ser alterado , colocar @Configuration e outras coisas
 
+/*@Component*/
 @Component
-
-public class Bd {
+public class Bd{
 
     private static Connection conn = null;
     private static boolean estaConectado = false;
@@ -228,18 +229,13 @@ public class Bd {
         }
     }
 
-    public static List<Grupos> listarGruposDB(String solicitadoPor) {
+    public static List<Grupos> listarGruposDB() {
         List<Grupos> grupos = new ArrayList<>();
 
-        String sql = "SELECT G.NOME " +
-                "FROM GRUPO G " +
-                "JOIN INTEGRA I ON G.ID = I.GROUP_ID " +
-                "JOIN USERS U ON U.ID = I.USER_ID " +
-                "WHERE U.EMAIL = ?";
+        // SQL para buscar todos os grupos
+        String sql = "SELECT NOME FROM GRUPO";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, solicitadoPor);
-
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -248,12 +244,12 @@ public class Bd {
                 grupos.add(grupo);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao listar todos os grupos: " + e.getMessage());
         }
 
         return grupos;
-
     }
+
 
     public static Grupos getGrupoDB(String email, String grupoNome) {
         Grupos grupo = null;
@@ -447,9 +443,9 @@ public class Bd {
         return true;
     }
 
-    public static List<User> obterUsuarios() {
+    public static List<User> obterUsers() {
         List<User> usuarios = new ArrayList<>();
-        String query = "SELECT ID, NOME, N_TELEFONE, EMAIL, PASSWORD, ESTADO FROM USERS";
+        String query = "SELECT ID, NOME, N_TELEFONE, EMAIL, PASSWORD FROM USERS";
 
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
@@ -459,10 +455,9 @@ public class Bd {
                 int nTelefone = rs.getInt("N_TELEFONE");
                 String email = rs.getString("EMAIL");
                 String password = rs.getString("PASSWORD");
-                boolean estado = rs.getBoolean("ESTADO");
 
                 // Adiciona o usuário à lista
-                User user = new User(id, nome, email, password, nTelefone, estado);
+                User user = new User(id, nome, email, password, nTelefone);
                 usuarios.add(user);
             }
         } catch (SQLException e) {

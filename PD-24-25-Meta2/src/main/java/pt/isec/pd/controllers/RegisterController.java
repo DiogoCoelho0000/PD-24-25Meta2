@@ -41,23 +41,4 @@ public class RegisterController {
         }
     }
 
-/*    @PostMapping
-    public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
-        System.out.println("REGISTO");
-        Bd.ligaBD("Base_de_dados");
-
-        boolean userCreated = Bd.setUserDB(
-                registerRequest.getUsername(),
-                registerRequest.getnTelefone(),
-                registerRequest.getEmail(),
-                registerRequest.getPassword()
-        );
-
-        if (userCreated) {
-            return ResponseEntity.ok("Registo efectuado com sucesso");
-        } else {
-            return ResponseEntity.badRequest().body("O utilizador ja existe");
-        }
-    }*/
-
 }
