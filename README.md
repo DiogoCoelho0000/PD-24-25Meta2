@@ -23,3 +23,5 @@ cd PD-24-25Meta2-GestaoCompras-Splitwise
 ```
 
 > Requires Java 17+ and a local SQL database instance.
+
+<img width="344" height="270" alt="image" src="https://github.com/user-attachments/assets/50e66cc3-a151-4c8b-9274-978e4365aa9c" />
