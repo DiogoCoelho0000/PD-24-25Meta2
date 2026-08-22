@@ -1,6 +1,6 @@
 # 💰 Gestão de Compras (Splitwise-inspired)
 
-A distributed Java system for tracking and splitting shared expenses among groups, inspired by Splitwise — built around a REST API and an RMI service working together.
+Distributed Java system for splitting shared expenses (Splitwise-inspired). Started with direct socket/multicast communication, then evolved to a REST API (Spring Boot, JWT) plus an RMI service using the Observer pattern for real-time notifications.
 
 ## ✨ Features
 
